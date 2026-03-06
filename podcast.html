@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI播客精选</title>
+<link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans SC',sans-serif; font-weight:300; min-height:100vh; background:#F3F6FB; color:#2A3A5A; }
+
+.wrap { max-width:460px; margin:0 auto; padding:0 18px 60px; }
+
+.header { padding:36px 0 24px; text-align:center; }
+.header h1 { font-size:22px; font-weight:700; color:#3A5A9A; letter-spacing:3px; margin-bottom:6px; }
+.header p { font-size:11px; color:#8A9ABB; letter-spacing:2px; }
+
+.tag-row { display:flex; gap:6px; margin-bottom:18px; overflow-x:auto; padding-bottom:2px; }
+.tag-row::-webkit-scrollbar { display:none; }
+.tag { padding:4px 14px; border-radius:20px; border:1.5px solid #C8D4E8; background:transparent; color:#8A9ABB; font-size:11px; font-weight:500; cursor:pointer; white-space:nowrap; font-family:'Noto Sans SC',sans-serif; transition:all .2s; }
+.tag.active { border-color:#3A5A9A; background:#E8EEF8; color:#3A5A9A; font-weight:700; }
+
+.card { background:#fff; border:1.5px solid #D8E2F0; border-radius:18px; padding:18px 20px; margin-bottom:12px; cursor:pointer; transition:all .22s; }
+.card:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(58,90,154,.10); }
+.card-source { font-size:10px; font-weight:700; letter-spacing:1px; color:#3A5A9A; background:#E8EEF8; padding:3px 10px; border-radius:20px; display:inline-block; margin-bottom:10px; }
+.card-title { font-size:16px; font-weight:700; color:#1A2A4A; line-height:1.5; margin-bottom:6px; }
+.card-date { font-size:11px; color:#8A9ABB; margin-bottom:10px; }
+.card-preview { font-size:12px; color:#6A7A9A; line-height:1.8; }
+.card-body { display:none; font-size:13px; color:#3A4A6A; line-height:1.9; margin-top:14px; padding-top:14px; border-top:1px solid #E8EEF8; }
+.card-body p { margin-bottom:12px; }
+.card-body strong { color:#1A2A4A; font-weight:600; }
+.card.open .card-body { display:block; }
+.card-toggle { font-size:11px; color:#3A5A9A; font-weight:600; margin-top:10px; display:flex; align-items:center; gap:4px; }
+.card-toggle::after { content:'▾'; transition:transform .2s; }
+.card.open .card-toggle::after { transform:rotate(180deg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>AI 播客精选</h1>
+    <p>每期精读 · 中文整理</p>
+  </div>
+
+  <div class="tag-row">
+    <button class="tag active" onclick="filterTag('all',this)">全部</button>
+    <button class="tag" onclick="filterTag('Lex Fridman Podcast',this)">Lex Fridman</button>
+    <button class="tag" onclick="filterTag('TWIML AI Podcast',this)">TWIML</button>
+    <button class="tag" onclick="filterTag('Practical AI',this)">Practical AI</button>
+    <button class="tag" onclick="filterTag('No Priors',this)">No Priors</button>
+  </div>
+
+  <div id="cardList"></div>
+</div>
+
+<script>
+const episodes = [
+  {
+    title: '小模型，大智慧：崔叶真的AI民主化之路',
+    source: 'TWIML AI Podcast',
+    date: '2026-01-29',
+    preview: '斯坦福教授崔叶真用小语言模型挑战大模型霸权，探讨AI民主化与多元对齐的深层命题。',
+    body: `在人工智能的发展浪潮中，大模型几乎成了默认的技术路线。然而，斯坦福大学教授崔叶真（Yejin Choi）却在做一件看似"逆流而上"的事：让小语言模型学会真正地推理。
+
+这不是一个关于资源受限的妥协方案，而是一个关于AI民主化的深刻命题。
+
+崔叶真的核心论点是：模型的智能差距，本质上是数据质量和多样性的差距，而非参数规模的差距。她的团队综合运用了合成数据生成、模仿学习和强化学习三种技术路径，在数学推理领域提出了"棱镜合成"（Prismatic Synthesis）方法，能够生成多样化合成数学数据的同时过滤过度重复的样本。
+
+她在"人工蜂巢思维"论文中提出了一个令人警醒的问题：当越来越多的人依赖少数几个大型AI系统时，模型输出的同质化会带来什么后果？这种"模式坍塌"的风险是真实存在的——AI系统倾向于输出统计上最常见的答案，悄悄压缩人类思想的多样性。
+
+与此紧密相连的，是她倡导的"多元对齐"（Pluralistic Alignment）理念。一个真正对齐的AI，不应该是某种文化霸权的延伸，而应该能够理解并尊重人类价值观的多样性。
+
+回望崔叶真的整个研究图景，可以看到一条清晰的线索：技术选择背后是价值判断。在这个大模型竞赛愈演愈烈的时代，这样的声音显得尤为珍贵。`
+  },
+  {
+    title: '当一个开发者拒绝了OpenAI的收购：OpenClaw与AI智能体时代的独立宣言',
+    source: 'Lex Fridman Podcast',
+    date: '2026-02-12',
+    preview: '开源AI智能体框架OpenClaw成为GitHub史上增长最快的项目，创始人却拒绝了OpenAI和Meta的收购邀约。',
+    body: `当一个开源项目成为GitHub史上增长最快的存在，背后究竟发生了什么？Lex Fridman邀请了Peter Steinberger，聊了聊他创建的AI智能体框架OpenClaw，以及这场意外爆红背后更深层的技术与人文思考。
+
+**为什么OpenClaw会病毒式传播**
+
+OpenClaw走红的原因，表面上看是技术，实际上更多是时机与透明度的结合。它是开源的，任何人都可以看到它怎么运作。在一个大量AI工具都藏在黑盒子里的时代，这种开放性本身就是一种稀缺品。
+
+更有意思的是，OpenClaw具备自我修改的能力——AI智能体可以在运行过程中调整自身的行为逻辑。Steinberger坦诚地讨论了安全隐患，没有回避那些棘手的问题，这反而赢得了社区的信任。
+
+**AI智能体如何改变编程**
+
+Steinberger的观点是，AI智能体不会让程序员消失，但会让编程这件事发生根本性的重构。他预测AI智能体将替代80%的现有应用——不是因为应用会消失，而是因为很多今天需要独立App完成的事情，未来直接通过智能体交互就能搞定。
+
+**拒绝收购**
+
+节目里有一段让人印象深刻的对话，关于他收到来自OpenAI和Meta的收购邀约，但最终选择拒绝。在资本和自主之间，他选择了后者。这种选择让OpenClaw保持了作为开源项目的纯粹性，社区才能真正信任它。`
+  },
+  {
+    title: '当AI重塑领导力：脆弱、共情与反脆弱的时代价值',
+    source: 'Practical AI',
+    date: '2026-02-18',
+    preview: 'Deloitte首席创新官探讨AI时代领导力的核心转变：脆弱性和共情不是软肋，而是核心竞争力。',
+    body: `在人工智能以前所未有的速度重塑商业世界的今天，领导者们正面临一场悄然而至的认知危机。Deloitte首席创新官Deborah Golden的分享，触碰了这个时代最核心的焦虑与机遇。
+
+AI的加速渗透带来的不仅是效率的跃升，更是组织内部认知负荷的急剧攀升。员工对未来的不确定感、对被替代的隐忧，都在悄悄积累成组织层面的情绪压力。
+
+**脆弱性是核心竞争力**
+
+Deborah Golden提出了一个颇具洞见的观点：在这个特殊时刻，脆弱性（vulnerability）和共情（empathy）不是领导力的软肋，而是核心竞争力。当组织正在经历深刻的系统性变革时，领导者愿意承认"我也不确定"，反而能建立起更真实的信任关系。
+
+**反脆弱性**
+
+节目中另一个令人印象深刻的概念是"反脆弱性"（anti-fragility）——系统不仅能够承受冲击，还能从混乱和压力中获得成长。与单纯的"韧性"不同，反脆弱性强调的是在压力中进化、在不确定性中变得更强。
+
+在AI语境下，一个具备反脆弱性的组织，会把每一次技术冲击视为重新校准自身能力的机会。
+
+**人类领导力的独特价值**
+
+在AI时代，领导者的工作正在从"管理信息"转向"管理意义"，从"优化流程"转向"塑造文化"。脆弱不是弱点，共情不是多余，反脆弱不是口号，而是在这个加速时代真正能够穿越周期的底层能力。`
+  },
+  {
+    title: '当SaaS遇上AI：一场正在发生的软件革命',
+    source: 'No Priors',
+    date: '2026-02-24',
+    preview: 'AI正在从根本上重构SaaS商业模式，从按席位收费到按价值收费，软件行业的底层逻辑正在改写。',
+    body: `软件即服务（SaaS）这个商业模式，在过去二十年里几乎成了科技创业的标准范式。但AI的出现，正在从根本上动摇这个范式的底层逻辑。
+
+**从席位到价值**
+
+传统SaaS的收费逻辑是按用户席位计费——你有多少人用，就付多少钱。但当AI智能体开始承担越来越多原本由人类完成的工作时，这个逻辑就开始失效了。一个AI智能体可以同时处理成百上千个任务，"席位"这个概念本身就变得模糊了。
+
+新的收费逻辑正在浮现：按结果收费、按价值收费。你不是在为软件付费，而是在为软件帮你完成的事情付费。这个转变听起来简单，但对整个SaaS行业的商业模式、定价策略、客户关系都意味着深刻的重构。
+
+**AI原生 vs AI增强**
+
+节目中讨论了一个重要的区分：AI原生产品（从一开始就以AI为核心构建）和AI增强产品（在现有产品上叠加AI功能）之间的竞争。前者往往能提供更流畅、更深度的AI体验，但后者拥有现有的客户基础和市场信任。
+
+这场竞争的结果，将在很大程度上决定下一代企业软件的格局。
+
+**对创业者的启示**
+
+对于正在这个领域创业的人来说，核心问题已经不再是"要不要加AI"，而是"如何用AI重新定义你所在领域的价值交付方式"。那些能够清晰回答这个问题的公司，将在这场软件革命中占据先机。`
+  }
+];
+
+let currentTag = 'all';
+
+function filterTag(tag, btn) {
+  currentTag = tag;
+  document.querySelectorAll('.tag').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+}
+
+function render() {
+  const list = document.getElementById('cardList');
+  const filtered = currentTag === 'all' ? episodes : episodes.filter(e => e.source === currentTag);
+  list.innerHTML = filtered.map((ep, i) => `
+    <div class="card" id="card${i}" onclick="toggleCard(${i})">
+      <span class="card-source">${ep.source}</span>
+      <div class="card-title">${ep.title}</div>
+      <div class="card-date">${ep.date}</div>
+      <div class="card-preview">${ep.preview}</div>
+      <div class="card-body">${ep.body.split('\n\n').map(p => `<p>${p}</p>`).join('')}</div>
+      <div class="card-toggle">展开阅读</div>
+    </div>
+  `).join('');
+}
+
+function toggleCard(i) {
+  const card = document.getElementById('card' + i);
+  card.classList.toggle('open');
+  card.querySelector('.card-toggle').textContent = card.classList.contains('open') ? '收起' : '展开阅读';
+}
+
+// 禁止双指缩放
+document.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+let lastTouch = 0;
+document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouch < 300) e.preventDefault(); lastTouch = now; }, { passive: false });
+
+render();
+</script>
+</body>
+</html>
